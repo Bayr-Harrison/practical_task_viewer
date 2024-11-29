@@ -1,9 +1,10 @@
 import streamlit as st
 from supabase import create_client, Client
+import os
 
 # Initialize Supabase client
-SUPABASE_URL = "https://your-supabase-url.supabase.co"  # Replace with your URL
-SUPABASE_KEY = "your-supabase-key"  # Replace with your API Key
+SUPABASE_URL = os.environ["SUPABASE_URL"]  # Replace with your URL
+SUPABASE_KEY = os.environ["SUPABASE_KEY"]   # Replace with your API Key
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
