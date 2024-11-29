@@ -3,8 +3,12 @@ from supabase import create_client, Client
 import os
 
 # Initialize Supabase client
-SUPABASE_URL = os.environ["SUPABASE_URL"]  # Replace with your URL
-SUPABASE_KEY = os.environ["SUPABASE_KEY"]   # Replace with your API Key
+try:
+    SUPABASE_URL = os.environ["SUPABASE_URL"]
+    SUPABASE_KEY = os.environ["SUPABASE_KEY"]
+except KeyError:
+    st.error("Environment variables SUPABASE_URL or SUPABASE_KEY are not set.")
+    st.stop()
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -23,15 +27,22 @@ if st.button("Search"):
         try:
             # Get the public URL for the file
             response = supabase.storage.from_("test_prac_scans").get_public_url(file_name)
-            file_url = response.get("publicUrl")
-            
-            if file_url:
-                # Success: Display the URL and embed the PDF
+
+            # Debugging: Log response type and content
+            st.write(f"Response type: {type(response)}")
+            st.write(f"Response content: {response}")
+
+            if isinstance(response, dict) and "publicUrl" in response:
+                file_url = response["publicUrl"]
                 st.success("File found!")
                 st.write(f"Public URL: [View PDF]({file_url})")
                 st.markdown(f"""<iframe src="{file_url}" width="700" height="500"></iframe>""", unsafe_allow_html=True)
+            elif isinstance(response, str):  # If the response is already a URL
+                st.success("File found!")
+                st.write(f"Public URL: [View PDF]({response})")
+                st.markdown(f"""<iframe src="{response}" width="700" height="500"></iframe>""", unsafe_allow_html=True)
             else:
-                st.error("File not found in the bucket.")
+                st.error(f"Unexpected response format: {response}")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
     else:
