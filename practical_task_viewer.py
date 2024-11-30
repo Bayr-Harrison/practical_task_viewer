@@ -28,21 +28,15 @@ if st.button("Search"):
             # Get the public URL for the file
             response = supabase.storage.from_("test_prac_scans").get_public_url(file_name)
 
-            # Debugging: Log response type and content
-            st.write(f"Response type: {type(response)}")
-            st.write(f"Response content: {response}")
-
             if isinstance(response, dict) and "publicUrl" in response:
                 file_url = response["publicUrl"]
                 st.success("File found!")
                 st.write(f"Public URL: [View PDF]({file_url})")
-                st.markdown(f"""<iframe src="{file_url}" width="700" height="500"></iframe>""", unsafe_allow_html=True)
             elif isinstance(response, str):  # If the response is already a URL
                 st.success("File found!")
                 st.write(f"Public URL: [View PDF]({response})")
-                st.markdown(f"""<iframe src="{response}" width="700" height="500"></iframe>""", unsafe_allow_html=True)
             else:
-                st.error(f"Unexpected response format: {response}")
+                st.error("File not found in the bucket.")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
     else:
